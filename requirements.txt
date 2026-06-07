@@ -1,8 +1,8 @@
-streamlit>
-numpy
-pandas
-scipy
-yfinance
-plotly
-curl-cffi
-requests
+streamlit>=1.28.0
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+yfinance>=0.2.28
+plotly>=5.15.0
+curl-cffi>=0.5.0
+requests>=2.31.0
