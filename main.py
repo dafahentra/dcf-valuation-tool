@@ -81,10 +81,12 @@ def main():
 
         if st.button("Fetch Beta", use_container_width=True):
             with st.spinner("Fetching market data…"):
+                fetch_stock_beta.clear()  # clear stale cache
                 beta_val, err, mkt_info = fetch_stock_beta(ticker)
                 if beta_val is not None:
                     st.session_state.fetched_beta = beta_val
                     st.session_state.mp_calc = mkt_info['market_premium']
+                    st.session_state.rf_calc = mkt_info['risk_free']
                     st.success(f"Beta fetched: {beta_val:.3f} ({mkt_info['market']} market)")
                 else:
                     st.error(f"Could not fetch beta: {err}")
@@ -104,7 +106,7 @@ def main():
     with col2:
         st.markdown('<div class="input-section"><div style="font-size:1.3rem;font-weight:500;color:#c584f7">Historical Financials</div>', unsafe_allow_html=True)
         n_hist_years = st.slider("Years of historical data", 3, 5, 5)
-        curr_yr = datetime.now().year
+        curr_yr = datetime.now().year - 1  # start from last year — current year data not yet available
         revs, fcfs = [], []
 
         st.markdown("**Revenue (millions)**")

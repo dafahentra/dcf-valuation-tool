@@ -1,24 +1,5 @@
-[theme]
-# Primary color - Purple theme
-primaryColor = "#c584f7"
+[global]
+developmentMode = false
 
-# Background color for the main content area
-backgroundColor = "#0e1117"
-
-# Background color for sidebar
-secondaryBackgroundColor = "#1a1d26"
-
-# Color used for text
-textColor = "#fafafa"
-
-# Font family
-font = "sans serif"
-
-[server]
-# Hide the hamburger menu
-hideSidebarNav = true
-
-[ui]
-# Hide the "Made with Streamlit" footer
-hideTopBar = false
-hideSidebarNav = true
+[client]
+toolbarMode = "minimal"

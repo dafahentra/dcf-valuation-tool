@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 styles.py
 UI formatting helpers: CSS, metric cards, currency/percentage formatting.
@@ -30,7 +31,11 @@ def get_custom_css() -> str:
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
             padding: 1.5rem; border-radius: 12px;
+            height: 100%; box-sizing: border-box;
         }
+
+        div[data-testid="stHorizontalBlock"] { align-items: stretch; }
+        div[data-testid="column"] > div[data-testid="stVerticalBlock"] { height: 100%; }
 
         .summary-box {
             background: rgba(197,132,247,0.1);
@@ -55,9 +60,9 @@ def metric_card(label: str, value: str, delta: tuple | None = None) -> str:
         color = {'positive': '#4ade80', 'negative': '#f87171'}.get(sentiment, '#888')
         delta_html = f'<div style="color:{color};font-size:0.875rem">{text}</div>'
     return (
-        f'<div class="metric-card">'
-        f'<div style="color:#888;font-size:0.875rem">{label}</div>'
-        f'<div style="font-size:1.75rem;font-weight:600">{value}</div>'
+        f'<div class="metric-card" style="height:130px;display:flex;flex-direction:column;justify-content:center;">'
+        f'<div style="color:#888;font-size:0.875rem;line-height:1.3">{label}</div>'
+        f'<div style="font-size:1.75rem;font-weight:600;margin-top:4px">{value}</div>'
         f'{delta_html}</div>'
     )
 

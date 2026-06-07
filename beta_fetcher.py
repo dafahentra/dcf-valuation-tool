@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 beta_fetcher.py
 Fetches stock beta from yfinance. Falls back to calculating from
@@ -23,12 +24,16 @@ MARKETS: dict[str, dict] = {
     'HK': {'idx': '^HSI',      'sfx': '.HK', 'mp': 0.065, 'rf': 0.040},
     'IN': {'idx': '^BSESN',    'sfx': '.NS', 'mp': 0.080, 'rf': 0.070},
     'CN': {'idx': '000001.SS', 'sfx': '.SS', 'mp': 0.070, 'rf': 0.025},
+    'ID': {'idx': '^JKSE',     'sfx': '.JK', 'mp': 0.080, 'rf': 0.067},  # Indonesia IDX
+    'KR': {'idx': '^KS11',     'sfx': '.KS', 'mp': 0.065, 'rf': 0.035},  # Korea KOSPI
+    'AU': {'idx': '^AXJO',     'sfx': '.AX', 'mp': 0.060, 'rf': 0.043},  # Australia ASX
+    'SG': {'idx': '^STI',      'sfx': '.SI', 'mp': 0.055, 'rf': 0.035},  # Singapore STI
 }
 
 BETA_MIN = 0.1
 BETA_MAX = 3.0
-MIN_DATA_POINTS = 60
-OUTLIER_THRESHOLD = 0.5
+MIN_DATA_POINTS = 30
+OUTLIER_THRESHOLD = 0.20  # 20% daily — removes data errors, keeps normal volatility
 
 
 def _create_session():

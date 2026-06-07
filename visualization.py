@@ -23,16 +23,45 @@ def plot_distribution(vals: np.ndarray, price: float, curr: str = 'USD') -> go.F
     kde_y = stats.gaussian_kde(vals)(kde_x) * len(vals) * (vals.max() - vals.min()) / 50
     fig.add_scatter(x=kde_x, y=kde_y, mode='lines', line=dict(color=_PURPLE, width=3), name='Probability Density')
 
-    for value, color, dash, label in [
-        (price,           _RED,   'dash', 'Current'),
-        (vals.mean(),     _GREEN, 'dot',  'Mean'),
-        (np.median(vals), _BLUE,  'dot',  'Median'),
-    ]:
-        fig.add_vline(x=value, line_dash=dash, line_color=color, annotation_text=f'{label}: {value:,.2f}')
+    mean_val   = float(vals.mean())
+    median_val = float(np.median(vals))
 
-    fig.update_layout(**_LAYOUT, height=500, title='Fair Value Distribution',
-                      xaxis_title=f'Fair Value ({curr})', yaxis_title='Frequency')
+    for value, color, dash, label in [
+        (price,      _RED,   'dash', f'Current  {price:,.0f}'),
+        (mean_val,   _GREEN, 'dot',  f'Mean  {mean_val:,.0f}'),
+        (median_val, _BLUE,  'dot',  f'Median  {median_val:,.0f}'),
+    ]:
+        # Draw vertical line as a shape (no annotation, no text)
+        fig.add_shape(
+            type='line',
+            x0=value, x1=value,
+            y0=0, y1=1,
+            yref='paper',
+            line=dict(color=color, dash=dash, width=1.5),
+        )
+        # Dummy trace — shows color + dash style in legend only
+        fig.add_scatter(
+            x=[None], y=[None],
+            mode='lines',
+            line=dict(color=color, dash=dash, width=2),
+            name=label,
+        )
+
+    fig.update_layout(
+        **_LAYOUT,
+        height=500,
+        title='Fair Value Distribution',
+        xaxis_title=f'Fair Value ({curr})',
+        yaxis_title='Frequency',
+        showlegend=True,
+        legend=dict(
+            bgcolor='rgba(0,0,0,0)',
+            bordercolor='rgba(255,255,255,0.1)',
+            borderwidth=1,
+        ),
+    )
     return fig
+
 
 
 def plot_percentiles(res: dict, price: float, curr: str = 'USD') -> go.Figure:
