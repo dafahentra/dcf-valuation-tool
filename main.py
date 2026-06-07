@@ -76,8 +76,13 @@ def main():
         company  = st.text_input("Company Name", "Example Corp")
         ticker   = st.text_input("Ticker Symbol", "AAPL")
         currency = st.selectbox("Currency", ["USD", "EUR", "GBP", "JPY", "CNY", "INR", "KRW", "IDR"])
+        scale_choice = st.selectbox("Financial Data Scale", ["Millions", "Billions", "Trillions"])
+        scale_mult = {"Millions": 1.0, "Billions": 1000.0, "Trillions": 1000000.0}[scale_choice]
+        scale_lbl  = scale_choice.lower()
+
         price    = st.number_input("Current Stock Price", min_value=0.01, value=100.00, format="%.2f")
-        shares   = st.number_input("Shares Outstanding (millions)", min_value=0.1, value=100.00, format="%.2f")
+        shares_raw = st.number_input(f"Shares Outstanding ({scale_lbl})", min_value=0.0001, value=100.00 / scale_mult, format="%.2f")
+        shares = shares_raw * scale_mult
 
         if st.button("Fetch Beta", use_container_width=True):
             with st.spinner("Fetching market data…"):
@@ -95,8 +100,10 @@ def main():
         st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="input-section"><div style="font-size:1.3rem;font-weight:500;color:#c584f7">Financial Structure</div>', unsafe_allow_html=True)
-        debt     = st.number_input("Total Debt (millions)", min_value=0.0, value=200.0, format="%.1f")
-        cash     = st.number_input("Cash & Equivalents (millions)", min_value=0.0, value=50.0, format="%.1f")
+        debt_raw = st.number_input(f"Total Debt ({scale_lbl})", min_value=0.0, value=200.0 / scale_mult, format="%.2f")
+        cash_raw = st.number_input(f"Cash & Equivalents ({scale_lbl})", min_value=0.0, value=50.0 / scale_mult, format="%.2f")
+        debt = debt_raw * scale_mult
+        cash = cash_raw * scale_mult
         net_debt = debt - cash
         d2e      = debt / (price * shares) if price * shares > 0 else 0.0
         cod      = st.number_input("Cost of Debt", 0.0, 0.15, 0.04, 0.005, format="%.3f")
@@ -109,15 +116,19 @@ def main():
         curr_yr = datetime.now().year - 1  # start from last year — current year data not yet available
         revs, fcfs = [], []
 
-        st.markdown("**Revenue (millions)**")
+        st.markdown(f"**Revenue ({scale_lbl})**")
         for i, col in enumerate(st.columns(n_hist_years)):
             yr = curr_yr - i
-            revs.append(col.number_input(f"{yr}", 0.0, value=round(1000.0 * (1.05 ** (n_hist_years - i - 1)), 1), format="%.1f", key=f"r{yr}"))
+            def_val = round((1000.0 * (1.05 ** (n_hist_years - i - 1))) / scale_mult, 2)
+            raw = col.number_input(f"{yr}", 0.0, value=def_val, format="%.2f", key=f"r{yr}")
+            revs.append(raw * scale_mult)
 
-        st.markdown("**Free Cash Flow (millions)**")
+        st.markdown(f"**Free Cash Flow ({scale_lbl})**")
         for i, col in enumerate(st.columns(n_hist_years)):
             yr = curr_yr - i
-            fcfs.append(col.number_input(f"{yr}", -1000.0, value=round(100.0 * (1.05 ** (n_hist_years - i - 1)), 1), format="%.1f", key=f"f{yr}"))
+            def_val = round((100.0 * (1.05 ** (n_hist_years - i - 1))) / scale_mult, 2)
+            raw = col.number_input(f"{yr}", -1000.0, value=def_val, format="%.2f", key=f"f{yr}")
+            fcfs.append(raw * scale_mult)
 
         revs.reverse(); fcfs.reverse()
         st.markdown('</div>', unsafe_allow_html=True)

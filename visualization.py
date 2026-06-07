@@ -10,7 +10,12 @@ from plotly.subplots import make_subplots
 from scipy import stats
 import streamlit as st
 
-_LAYOUT = {'template': 'plotly_dark', 'plot_bgcolor': 'rgba(0,0,0,0)', 'paper_bgcolor': 'rgba(0,0,0,0)'}
+_LAYOUT = {
+    'template': 'plotly_dark',
+    'plot_bgcolor': 'rgba(0,0,0,0)',
+    'paper_bgcolor': 'rgba(0,0,0,0)',
+    'font': {'family': '"Source Sans Pro", "Inter", system-ui, sans-serif'}
+}
 _PURPLE, _RED, _GREEN, _BLUE = '#c584f7', '#f87171', '#4ade80', '#60a5fa'
 
 

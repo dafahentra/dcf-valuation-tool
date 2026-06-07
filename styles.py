@@ -23,24 +23,27 @@ def get_custom_css() -> str:
             font-size: 2.5rem; font-weight: 300; margin-bottom: 0.5rem;
             background: linear-gradient(135deg, #c584f7 0%, #a068d8 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-family: inherit;
         }
 
-        .sub-header { font-size: 1.1rem; color: #888; margin-bottom: 2rem; }
+        .sub-header { font-size: 1.1rem; color: #888; margin-bottom: 2rem; font-family: inherit; }
 
         .metric-card {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
             padding: 1.5rem; border-radius: 12px;
             height: 100%; box-sizing: border-box;
+            font-family: inherit;
         }
 
         div[data-testid="stHorizontalBlock"] { align-items: stretch; }
         div[data-testid="column"] > div[data-testid="stVerticalBlock"] { height: 100%; }
 
         .summary-box {
-            background: rgba(197,132,247,0.1);
-            border: 1px solid rgba(197,132,247,0.3);
-            padding: 1.5rem; border-radius: 12px; margin: 2rem 0;
+            background: rgba(197, 132, 247, 0.05);
+            border: 1px solid rgba(197, 132, 247, 0.2);
+            padding: 1.5rem; border-radius: 12px;
+            margin-top: 2rem; font-family: inherit;
         }
 
         .input-section {
