@@ -3,8 +3,6 @@ styles.py
 UI formatting helpers: CSS, metric cards, currency/percentage formatting.
 """
 
-from __future__ import annotations
-
 CURR_SYMBOLS: dict[str, str] = {
     'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥',
     'CNY': '¥', 'INR': '₹', 'KRW': '₩', 'IDR': 'Rp',
@@ -32,28 +30,6 @@ def get_custom_css() -> str:
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.05);
             padding: 1.5rem; border-radius: 12px;
-            height: 100%;
-            display: flex; flex-direction: column; justify-content: center;
-            box-sizing: border-box;
-        }
-
-        /* Force Streamlit columns to stretch to equal height */
-        div[data-testid="stHorizontalBlock"] {
-            align-items: stretch;
-        }
-        div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            display: flex;
-            flex-direction: column;
-        }
-        div[data-testid="stHorizontalBlock"] > div[data-testid="column"] > div[data-testid="stVerticalBlock"] {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        div[data-testid="stHorizontalBlock"] > div[data-testid="column"] > div[data-testid="stVerticalBlock"] > div {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
         }
 
         .summary-box {
@@ -72,25 +48,17 @@ def get_custom_css() -> str:
 
 
 def metric_card(label: str, value: str, delta: tuple | None = None) -> str:
-    """
-    Render a styled metric card as an HTML string.
-
-    Parameters
-    ----------
-    delta : tuple (sentiment, text) where sentiment is 'positive'|'negative'|'neutral'
-    """
+    """Render a styled metric card as HTML. delta = (sentiment, text)."""
     delta_html = ''
     if delta:
         sentiment, text = delta
         color = {'positive': '#4ade80', 'negative': '#f87171'}.get(sentiment, '#888')
         delta_html = f'<div style="color:{color};font-size:0.875rem">{text}</div>'
-
     return (
-        f'<div class="metric-card" style="height:120px;">'
+        f'<div class="metric-card">'
         f'<div style="color:#888;font-size:0.875rem">{label}</div>'
         f'<div style="font-size:1.75rem;font-weight:600">{value}</div>'
-        f'{delta_html}'
-        f'</div>'
+        f'{delta_html}</div>'
     )
 
 
@@ -98,8 +66,7 @@ def summary_box(title: str, content: str) -> str:
     return (
         f'<div class="summary-box">'
         f'<div style="font-size:1.25rem;font-weight:600;color:#c584f7;margin-bottom:1rem">{title}</div>'
-        f'<div>{content}</div>'
-        f'</div>'
+        f'<div>{content}</div></div>'
     )
 
 

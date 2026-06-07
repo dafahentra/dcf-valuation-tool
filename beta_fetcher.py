@@ -1,10 +1,8 @@
 """
 beta_fetcher.py
-Fetches stock beta coefficients from market data using yfinance.
-Falls back to manual calculation if provider beta is unavailable.
+Fetches stock beta from yfinance. Falls back to calculating from
+historical returns if provider beta is unavailable.
 """
-
-from __future__ import annotations
 
 import numpy as np
 import yfinance as yf
@@ -34,7 +32,7 @@ OUTLIER_THRESHOLD = 0.5
 
 
 def _create_session():
-    """Create a curl_cffi session if available, otherwise return None."""
+    """Return a curl_cffi session if available, otherwise None."""
     if _HAS_CFFI:
         try:
             return cffi_requests.Session(impersonate="chrome120")
@@ -56,34 +54,28 @@ def _calculate_beta_from_history(
     market_ticker: yf.Ticker,
     period: str,
 ) -> tuple[float | None, str | None]:
-    """
-    Calculate beta from historical price data.
-    Returns (beta, error_message). One of them will always be None.
-    """
-    stock_hist = stock_ticker.history(period=period)['Close']
+    """Calculate beta from historical returns. Returns (beta, error)."""
+    stock_hist  = stock_ticker.history(period=period)['Close']
     market_hist = market_ticker.history(period=period)['Close']
 
     if len(stock_hist) < MIN_DATA_POINTS or len(market_hist) < MIN_DATA_POINTS:
-        return None, f"Insufficient data: need {MIN_DATA_POINTS} points, got stock={len(stock_hist)}, market={len(market_hist)}"
+        return None, f"Insufficient data (need {MIN_DATA_POINTS} points)"
 
-    stock_returns = stock_hist.pct_change().dropna()
-    market_returns = market_hist.pct_change().dropna()
-    stock_returns, market_returns = stock_returns.align(market_returns, join='inner')
+    s_ret, m_ret = stock_hist.pct_change().dropna(), market_hist.pct_change().dropna()
+    s_ret, m_ret = s_ret.align(m_ret, join='inner')
 
-    # Remove outliers to reduce noise from data errors or extreme events
-    clean_mask = (abs(stock_returns) < OUTLIER_THRESHOLD) & (abs(market_returns) < OUTLIER_THRESHOLD)
-    stock_clean = stock_returns[clean_mask]
-    market_clean = market_returns[clean_mask]
+    # Remove outliers (data errors or extreme events)
+    mask = (abs(s_ret) < OUTLIER_THRESHOLD) & (abs(m_ret) < OUTLIER_THRESHOLD)
+    s_clean, m_clean = s_ret[mask], m_ret[mask]
 
-    if len(stock_clean) < MIN_DATA_POINTS:
-        return None, f"Insufficient clean data after outlier removal: {len(stock_clean)} points"
+    if len(s_clean) < MIN_DATA_POINTS:
+        return None, f"Insufficient clean data after outlier removal ({len(s_clean)} points)"
 
-    market_variance = market_clean.var()
-    if market_variance == 0:
+    var_m = m_clean.var()
+    if var_m == 0:
         return None, "Market variance is zero — cannot compute beta"
 
-    beta = np.clip(stock_clean.cov(market_clean) / market_variance, BETA_MIN, BETA_MAX)
-    return float(beta), None
+    return float(np.clip(s_clean.cov(m_clean) / var_m, BETA_MIN, BETA_MAX)), None
 
 
 @st.cache_data(ttl=3600)
@@ -92,16 +84,10 @@ def fetch_stock_beta(
     period: str = "2y",
 ) -> tuple[float | None, str | None, dict | None]:
     """
-    Fetch beta coefficient for a given stock ticker.
-
-    Strategy:
-    1. Try provider-supplied beta from yfinance info (fast).
-    2. Fall back to calculating beta from historical returns (slower).
-
-    Returns:
-        (beta, error_message, market_info)
-        On success: (float, None, dict)
-        On failure: (None, str, None)
+    Fetch beta for a given ticker.
+    1. Try provider beta from yfinance info.
+    2. Fall back to calculating from historical returns.
+    Returns (beta, error, market_info) — one of beta/error is always None.
     """
     ticker = ticker.upper().strip()
     session = _create_session()
@@ -109,29 +95,20 @@ def fetch_stock_beta(
     try:
         stock = yf.Ticker(ticker, session=session)
         market_key = _detect_market(ticker)
-        market_config = MARKETS[market_key]
-        market_info = {
-            'market': market_key,
-            'market_premium': market_config['mp'],
-            'risk_free': market_config['rf'],
-        }
+        cfg = MARKETS[market_key]
+        market_info = {'market': market_key, 'market_premium': cfg['mp'], 'risk_free': cfg['rf']}
 
-        # Attempt 1: use provider beta if plausible
+        # Attempt 1: provider beta
         info = stock.info or {}
         provider_beta = info.get('beta')
         if provider_beta and BETA_MIN <= provider_beta <= BETA_MAX:
             return float(provider_beta), None, market_info
 
-        # Attempt 2: calculate from historical returns
-        market_stock = yf.Ticker(market_config['idx'], session=session)
-        beta, error = _calculate_beta_from_history(stock, market_stock, period)
-
-        if error:
-            return None, error, None
-
-        return beta, None, market_info
+        # Attempt 2: calculate from history
+        beta, error = _calculate_beta_from_history(stock, yf.Ticker(cfg['idx'], session=session), period)
+        return (beta, None, market_info) if beta else (None, error, None)
 
     except (ValueError, KeyError) as e:
         return None, f"Data error: {e}", None
     except Exception as e:
-        return None, f"Unexpected error fetching beta for '{ticker}': {e}", None
+        return None, f"Unexpected error for '{ticker}': {e}", None
