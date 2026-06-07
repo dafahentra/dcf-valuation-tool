@@ -1,34 +1,33 @@
 # DCF Valuation Tool
 
-A sophisticated web-based Discounted Cash Flow (DCF) valuation tool built with Streamlit that uses Monte Carlo simulation to estimate the intrinsic value of stocks.
+An institutional-grade Discounted Cash Flow (DCF) valuation engine built with Python and Streamlit. This tool leverages Monte Carlo simulations and automated market data fetching to provide comprehensive, probabilistic equity valuations.
 
-![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
-![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-[![GitHub](https://img.shields.io/badge/GitHub-dafahentra-181717?logo=github)](https://github.com/dafahentra)
+Designed for analysts, portfolio managers, and financial researchers who need a robust, transparent, and customizable valuation framework without the overhead of complex spreadsheet models.
 
-## Features
+[![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://python.org)
+[![Framework](https://img.shields.io/badge/streamlit-framework-red.svg)](https://streamlit.io)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-- **Real-time Beta Calculation**: Automatically fetch and calculate beta coefficients from market data
-- **Monte Carlo Simulation**: Run thousands of simulations to account for uncertainty in valuations
-- **Multi-Market Support**: Works with stocks from US, UK, Germany, Japan, Hong Kong, India, and China markets
-- **Interactive Visualizations**: Beautiful charts showing value distributions, percentiles, and sensitivity analysis
-- **Flexible Growth Modeling**: Support for both fixed and range-based growth rate projections
-- **Export Functionality**: Download valuation results in JSON format
+## Why Fork This Project?
 
-The application provides:
-- Fair value distribution charts
-- Scenario analysis (Bear/Base/Bull cases)
-- Sensitivity analysis tornado charts
-- Risk-return profiles
-- Percentile-based valuation ranges
+- **Transparent Methodology**: Every calculation, from WACC to terminal value, is fully accessible and modifiable in Python.
+- **Probabilistic Approach**: Moves beyond deterministic models by incorporating Monte Carlo simulations for risk and sensitivity analysis.
+- **Global Market Coverage**: Pre-configured support for equities across US, UK, Germany, Japan, Hong Kong, India, and China markets.
+- **Extensible Architecture**: Clean separation of calculation engine (`dcf_engine.py`), data fetching (`beta_fetcher.py`), and visualization (`visualization.py`).
+
+## Core Capabilities
+
+- **Automated Data Integration**: Real-time extraction of beta coefficients and market parameters.
+- **Advanced Growth Modeling**: Flexible projection parameters supporting fixed rates and scenario-based bounds.
+- **Scenario & Sensitivity Analysis**: Built-in bull/base/bear case modeling and parameter sensitivity visualization.
+- **Data Export**: Complete valuation results exportable to JSON for downstream processing.
 
 ## Quick Start
 
-### Prerequisites
+### Requirements
 
-- Python 3.8 or higher
-- pip (Python package installer)
+- Python 3.8+
+- pip
 
 ### Installation
 
@@ -38,150 +37,51 @@ git clone https://github.com/dafahentra/dcf-valuation-tool.git
 cd dcf-valuation-tool
 ```
 
-2. Install required packages:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the application:
+3. Launch the application:
 ```bash
 streamlit run main.py
 ```
 
-4. Open your browser and navigate to `http://localhost:8501`
-
-## Usage
-
-### Basic Workflow
-
-1. **Enter Company Information**
-   - Company name and ticker symbol
-   - Current stock price
-   - Number of shares outstanding
-
-2. **Set Financial Structure**
-   - Total debt and cash position
-   - Cost of debt and tax rate
-
-3. **Input Historical Data**
-   - Revenue for past 3-5 years
-   - Free cash flow for past 3-5 years
-
-4. **Configure Growth Assumptions**
-   - Choose between fixed rates or ranges
-   - Set growth rates for projection period
-   - Define terminal growth rate
-
-5. **Run Valuation**
-   - Click "Run DCF Valuation"
-   - View results across multiple tabs
-
-### Advanced Features
-
-- **Beta Fetching**: Click "Fetch Beta" to automatically retrieve beta from market data
-- **Monte Carlo Settings**: Adjust number of simulations (1,000 to 50,000)
-- **Market Parameters**: Customize risk-free rate and market risk premium
+Navigate to `http://localhost:8501` in your browser.
 
 ## Project Structure
 
-```
+```text
 dcf-valuation-tool/
-│
-├── main.py              # Main Streamlit application
-├── dcf_engine.py        # DCF calculation engine
-├── beta_fetcher.py      # Beta coefficient fetcher
-├── visualization.py     # Plotting functions
-├── styles.py           # UI styling and formatting
-├── requirements.txt    # Python dependencies
-└── README.md          # This file
+├── main.py              # Application entry point and UI layout
+├── dcf_engine.py        # Core valuation mathematics and Monte Carlo engine
+├── beta_fetcher.py      # Market data and beta coefficient integration
+├── visualization.py     # Plotly-based interactive charting
+├── styles.py            # Application theming and CSS
+└── requirements.txt     # Dependency specifications
 ```
 
-## Configuration
+## Methodology Overview
 
-### Market Parameters
-
-Default market parameters by region:
-
-| Market | Index | Market Premium | Risk-Free Rate |
-|--------|-------|----------------|----------------|
-| US     | S&P 500 | 6.5% | 4.5% |
-| UK     | FTSE 100 | 6.0% | 4.0% |
-| Germany | DAX | 5.5% | 2.5% |
-| Japan  | Nikkei 225 | 5.0% | 0.1% |
-| Hong Kong | HSI | 6.5% | 4.0% |
-| India  | BSE SENSEX | 8.0% | 7.0% |
-| China  | SSE Composite | 7.0% | 2.5% |
-
-### Simulation Parameters
-
-- **Default simulations**: 10,000
-- **Projection years**: 3-10 years (default: 5)
-- **Growth rate bounds**: -30% to 50%
-- **Terminal growth cap**: 4%
-
-## Methodology
-
-### DCF Calculation
-
-1. **WACC Calculation**:
-   ```
-   WACC = We × Ce + Wd × Cd × (1 - Tax Rate)
-   ```
-   Where:
-   - We = Weight of equity
-   - Ce = Cost of equity (Risk-free rate + Beta × Market premium)
-   - Wd = Weight of debt
-   - Cd = Cost of debt
-
-2. **Free Cash Flow Projection**: Projects FCF based on historical growth patterns
-
-3. **Terminal Value**: Calculated using the Gordon Growth Model
-
-4. **Monte Carlo Simulation**: Varies key parameters within reasonable bounds to generate a distribution of possible valuations
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Beta fetch fails**: 
-   - Ensure ticker symbol is correct
-   - Check internet connection
-   - Manually input beta if automatic fetch fails
-
-2. **Import errors**:
-   - Run `pip install -r requirements.txt` again
-   - Ensure Python version is 3.8+
-
-3. **Streamlit not loading**:
-   - Clear browser cache
-   - Try different port: `streamlit run main.py --server.port 8502`
+1. **Cost of Capital (WACC)**: Dynamically calculated based on user-defined capital structure, real-time beta, and region-specific risk-free rates and market premiums.
+2. **Cash Flow Projection**: Forward-looking Free Cash Flow (FCF) estimation based on historical trends and defined growth phases.
+3. **Terminal Value**: Gordon Growth Model implementation with configurable caps to ensure economic reality.
+4. **Monte Carlo Engine**: Stochastically varies revenue growth, margin expansion, and cost of capital to generate a probability density function of the intrinsic value.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions from quantitative analysts, developers, and finance enthusiasts.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AdvancedFeature`)
+3. Commit your Changes (`git commit -m 'Add AdvancedFeature'`)
+4. Push to the Branch (`git push origin feature/AdvancedFeature`)
 5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-- Built with [Streamlit](https://streamlit.io/)
-- Financial data from [yfinance](https://github.com/ranaroussi/yfinance)
-- Visualizations powered by [Plotly](https://plotly.com/)
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Disclaimer
 
-This tool is for educational and research purposes only. It should not be used as the sole basis for investment decisions. Always conduct thorough due diligence and consult with financial professionals before making investment decisions.
-
-## Contact
-
-For questions, suggestions, or issues, please open an issue on GitHub or contact:
-- **Email**: dapahentra@gmail.com
-- **GitHub**: [dafahentra](https://github.com/dafahentra)
+This software is for educational and research purposes only. It does not constitute financial advice. Always perform your own due diligence before making investment decisions.
